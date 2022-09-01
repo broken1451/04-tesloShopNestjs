@@ -8,11 +8,16 @@ import { FilesModule } from './files/files.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { AuthModule } from './auth/auth.module';
+import { MessageWsModule } from './message-ws/message-ws.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
+      ssl: process.env.STAGE === 'prod' ? true : false, // para conectase de modo seguro con ssl,
+      extra: {
+        ssl: process.env.STAGE === 'prod' ? { rejectUnauthorized: false } : null, // para conectase de modo seguro con ssl
+      },
       type: 'postgres',
       host: process.env.DB_HOST,
       port: Number(process.env.DB_PORT),
@@ -29,10 +34,11 @@ import { AuthModule } from './auth/auth.module';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public')
     }),
-    AuthModule
+    AuthModule,
+    MessageWsModule
   ],
   exports: [ConfigModule],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }
